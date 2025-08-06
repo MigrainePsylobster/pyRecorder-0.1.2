@@ -1,4 +1,4 @@
-# 🎥 PyRecorder
+# PyRecorder
 
 A powerful, high-quality screen recording application for Windows with advanced multi-monitor support and system audio capture.
 
@@ -135,7 +135,7 @@ The application prioritizes **Windows system audio** (Stereo Mix):
 - `sounddevice` - Audio recording
 - Windows Audio APIs (automatic detection)
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Audio Issues
 **Problem**: "No audio file created" message
