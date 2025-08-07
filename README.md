@@ -166,16 +166,6 @@ The application prioritizes **Windows system audio** (Stereo Mix):
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-##  TODO / Roadmap
-
-- [ ] **Hotkey support** for start/stop recording
-- [ ] **Multiple output formats** (AVI, MOV, WebM)
-- [ ] **Frame rate options** (15, 30, 60 FPS)
-- [ ] **Quality presets** (Low, Medium, High, Ultra)
-- [ ] **Recording scheduler** with timer
-- [ ] **Webcam overlay** option
-- [ ] **Linux/macOS support**
-
 ##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
