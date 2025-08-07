@@ -5,6 +5,6 @@ echo Starting PyRecorder...
 call venv\Scripts\activate.bat
 
 :: Run the main Python script
-python main.py
+python src\main.py
 
 pause

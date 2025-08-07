@@ -22,7 +22,12 @@ from tkinter import messagebox, ttk
 import threading
 import time
 import os
+import sys
 from datetime import datetime
+
+# Add the src directory to Python path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from recorder import ScreenRecorder, AUDIO_AVAILABLE
 from region_selector import RegionSelector
 from window_selector import WindowSelector
