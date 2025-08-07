@@ -36,45 +36,82 @@ class PyRecorderGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("PyRecorder")
-        self.root.geometry("400x300")
+        self.root.geometry("400x320")
         self.root.resizable(False, False)
         
         self.recorder = ScreenRecorder()
         self.recording = False
         
+        # Theme settings
+        self.dark_mode = False
+        self.themes = {
+            'light': {
+                'bg': '#ffffff',
+                'fg': '#000000',
+                'button_bg': '#f0f0f0',
+                'button_fg': '#000000',
+                'frame_bg': '#ffffff',
+                'record_button_bg': '#4CAF50',
+                'stop_button_bg': '#f44336',
+                'change_button_bg': '#FF9800'
+            },
+            'dark': {
+                'bg': '#2d2d2d',
+                'fg': '#ffffff',
+                'button_bg': '#404040',
+                'button_fg': '#ffffff',
+                'frame_bg': '#3d3d3d',
+                'record_button_bg': '#4CAF50',
+                'stop_button_bg': '#f44336',
+                'change_button_bg': '#FF9800'
+            }
+        }
+        
         self.setup_ui()
         
     def setup_ui(self):
+        # Apply initial theme
+        self.apply_theme()
+        
         # Title
-        title_label = tk.Label(self.root, text="PyRecorder", font=("Arial", 16, "bold"))
-        title_label.pack(pady=10)
+        self.title_label = tk.Label(self.root, text="PyRecorder", font=("Arial", 16, "bold"))
+        self.title_label.pack(pady=10)
+        
+        # Theme toggle button (top right)
+        theme_frame = tk.Frame(self.root)
+        theme_frame.pack(fill="x", padx=20)
+        
+        self.theme_button = tk.Button(theme_frame, text="🌙 Dark Mode", 
+                                    command=self.toggle_theme, 
+                                    font=("Arial", 8), width=12, height=1)
+        self.theme_button.pack(side="right")
         
         # Recording mode selection
-        mode_frame = tk.LabelFrame(self.root, text="Recording Mode", font=("Arial", 10, "bold"))
-        mode_frame.pack(pady=10, padx=20, fill="x")
+        self.mode_frame = tk.LabelFrame(self.root, text="Recording Mode", font=("Arial", 10, "bold"))
+        self.mode_frame.pack(pady=10, padx=20, fill="x")
         
         self.mode_var = tk.StringVar(value="region")
         
-        region_radio = tk.Radiobutton(mode_frame, text="Select Region (Draw Rectangle)", 
+        self.region_radio = tk.Radiobutton(self.mode_frame, text="Select Region (Draw Rectangle)", 
                                     variable=self.mode_var, value="region", font=("Arial", 10))
-        region_radio.pack(anchor="w", padx=10, pady=5)
+        self.region_radio.pack(anchor="w", padx=10, pady=5)
         
-        window_radio = tk.Radiobutton(mode_frame, text="Select Window", 
+        self.window_radio = tk.Radiobutton(self.mode_frame, text="Select Window", 
                                     variable=self.mode_var, value="window", font=("Arial", 10))
-        window_radio.pack(anchor="w", padx=10, pady=5)
+        self.window_radio.pack(anchor="w", padx=10, pady=5)
         
         # Control buttons
-        button_frame = tk.Frame(self.root)
-        button_frame.pack(pady=20)
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(pady=20)
         
-        self.record_button = tk.Button(button_frame, text="Start Recording", 
+        self.record_button = tk.Button(self.button_frame, text="Start Recording", 
                                      command=self.toggle_recording, 
                                      bg="#4CAF50", fg="white", font=("Arial", 12, "bold"),
                                      width=15, height=2)
         self.record_button.pack(pady=5)
         
         # Change region button (initially hidden)
-        self.change_region_button = tk.Button(button_frame, text="Change Region", 
+        self.change_region_button = tk.Button(self.button_frame, text="Change Region", 
                                             command=self.change_recording_region,
                                             bg="#FF9800", fg="white", font=("Arial", 10, "bold"),
                                             width=15, height=1)
@@ -100,6 +137,57 @@ class PyRecorderGUI:
         self.audio_status_label = tk.Label(self.root, text=audio_status, 
                                          font=("Arial", 8), fg=audio_color)
         self.audio_status_label.pack(pady=2)
+        
+        # Apply theme to all widgets after creation
+        self.apply_theme()
+        
+    def apply_theme(self):
+        """Apply the current theme to all widgets"""
+        theme = self.themes['dark' if self.dark_mode else 'light']
+        
+        # Apply to root window
+        self.root.configure(bg=theme['bg'])
+        
+        # Update theme button text and colors
+        if hasattr(self, 'theme_button'):
+            if self.dark_mode:
+                self.theme_button.config(text="☀️ Light Mode", bg=theme['button_bg'], fg=theme['button_fg'])
+            else:
+                self.theme_button.config(text="🌙 Dark Mode", bg=theme['button_bg'], fg=theme['button_fg'])
+        
+        # Update all widgets if they exist
+        widget_updates = [
+            ('title_label', {'bg': theme['bg'], 'fg': theme['fg']}),
+            ('mode_frame', {'bg': theme['frame_bg'], 'fg': theme['fg']}),
+            ('region_radio', {'bg': theme['frame_bg'], 'fg': theme['fg'], 'selectcolor': theme['button_bg']}),
+            ('window_radio', {'bg': theme['frame_bg'], 'fg': theme['fg'], 'selectcolor': theme['button_bg']}),
+            ('button_frame', {'bg': theme['bg']}),
+            ('status_label', {'bg': theme['bg']}),
+            ('info_label', {'bg': theme['bg']}),
+            ('audio_status_label', {'bg': theme['bg']}),
+        ]
+        
+        for attr_name, config in widget_updates:
+            if hasattr(self, attr_name):
+                widget = getattr(self, attr_name)
+                try:
+                    widget.configure(**config)
+                except tk.TclError:
+                    # Some configurations might not be available for all widgets
+                    pass
+        
+        # Update theme frame
+        for widget in self.root.winfo_children():
+            if isinstance(widget, tk.Frame) and hasattr(self, 'button_frame') and widget != self.button_frame and hasattr(self, 'mode_frame') and widget != self.mode_frame:
+                try:
+                    widget.configure(bg=theme['bg'])
+                except tk.TclError:
+                    pass
+        
+    def toggle_theme(self):
+        """Toggle between light and dark mode"""
+        self.dark_mode = not self.dark_mode
+        self.apply_theme()
         
     def toggle_recording(self):
         if not self.recording:
@@ -146,7 +234,8 @@ class PyRecorderGUI:
             
             if success:
                 self.recording = True
-                self.record_button.config(text="Stop Recording", bg="#f44336")
+                theme = self.themes['dark' if self.dark_mode else 'light']
+                self.record_button.config(text="Stop Recording", bg=theme['stop_button_bg'])
                 self.status_label.config(text="Recording...", fg="red")
                 self.info_label.config(text=f"Recording: {width}x{height} at ({x}, {y})")
                 
@@ -171,7 +260,8 @@ class PyRecorderGUI:
         try:
             filename = self.recorder.stop_recording()
             self.recording = False
-            self.record_button.config(text="Start Recording", bg="#4CAF50")
+            theme = self.themes['dark' if self.dark_mode else 'light']
+            self.record_button.config(text="Start Recording", bg=theme['record_button_bg'])
             self.status_label.config(text="Recording saved", fg="green")
             
             # Hide change region button
